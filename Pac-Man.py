@@ -21,24 +21,14 @@ textPos = 0
 
 
 #Makes the wall positions and sizes
-walls = [pygame.Rect(0,50,570,30),pygame.Rect(0,660,570,30),pygame.Rect(0,50,30,210),pygame.Rect(540,50,30,210),pygame.Rect(0,240,120,30),pygame.Rect(450,240,120,30),pygame.Rect(0,300,120,30),pygame.Rect(450,300,120,30),pygame.Rect(450,270,30,30),pygame.Rect(90,270,30,30),pygame.Rect(450,360,120,30),pygame.Rect(0,360,120,30),pygame.Rect(90,360,30,90),pygame.Rect(450,360,30,90),pygame.Rect(0,420,120,30),pygame.Rect(450,420,120,30),pygame.Rect(0,420,30,690),pygame.Rect(540,420,30,690),pygame.Rect(60,110,60,30),pygame.Rect(150,110,90,30),pygame.Rect(270,80,30,60),pygame.Rect(330,110,90,30),pygame.Rect(450,110,60,30),pygame.Rect(60,170,60,30),pygame.Rect(150,170,30,150),pygame.Rect(210,170,150,30),pygame.Rect(450,110,60,30)]
-#                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      |End of outer areas / Start at top left this \ will indicate a new line                                                              \
+walls = [pygame.Rect(0,50,570,30),pygame.Rect(0,660,570,30),pygame.Rect(0,50,30,210),pygame.Rect(540,50,30,210),pygame.Rect(0,240,120,30),pygame.Rect(450,240,120,30),pygame.Rect(0,300,120,30),pygame.Rect(450,300,120,30),pygame.Rect(450,270,30,30),pygame.Rect(90,270,30,30),pygame.Rect(450,360,120,30),pygame.Rect(0,360,120,30),pygame.Rect(90,360,30,90),pygame.Rect(450,360,30,90),pygame.Rect(0,420,120,30),pygame.Rect(450,420,120,30),pygame.Rect(0,420,30,690),pygame.Rect(540,420,30,690),pygame.Rect(60,110,60,30),pygame.Rect(150,110,90,30),pygame.Rect(270,80,30,60),pygame.Rect(330,110,90,30),pygame.Rect(450,110,60,30),pygame.Rect(60,170,60,30),pygame.Rect(150,170,30,150),pygame.Rect(210,170,150,30),pygame.Rect(450,110,60,30),pygame.Rect(270,170,30,90),pygame.Rect(390,170,30,150),pygame.Rect(450,170,60,30),pygame.Rect(150,230,90,30),pygame.Rect(330,230,90,30)]
+#                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      |End of outer areas / Start at top left this \ will indicate a new line                                                              \                                                                                                                                                                                               \
 
 #Makes the wall images
 def MakeWalls():
     for i in range(len(walls)):
         pygame.draw.rect(screen,(9, 75, 189),walls[i])
 
-
-
-#Creating tracks player and ghosts can move on
-class Track:
-    def __init__(self,Xpos,Ypos,Xsize,Ysize):
-        self.layer = "track"
-        self.rect = pygame.Rect(Xpos,Ypos,Xsize,Ysize)
-
-#tracks = []
-#tracks.append()
 
 
 
