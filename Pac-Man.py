@@ -17,7 +17,8 @@ screen = pygame.display.set_mode((570,680))
 score = -30
 scorelen = 350
 textPos = 0
-moveTime = time.time()
+moveTimePT = time.time()
+moveTimeGT = time.time()
 place = True
 
 
@@ -64,8 +65,9 @@ def MakePellets():
 class Ghost:
     def __init__(self,type):
         self.type = type
-        self.rect = pygame.Rect((240,320,30,30))
+        self.rect = pygame.Rect((270,260,30,30))
         self.rotation = "R"
+        self.rotationR = "L"
         self.XPD = 0
         self.YPD = 0
         self.notTlist = []
@@ -78,10 +80,10 @@ class Ghost:
         elif(self.type == 4):
             self.color = (219, 26, 187)
         #Track detections
-        self.leftD = pygame.Rect((239,320,1,30))
-        self.topD = pygame.Rect((240,319,30,1))
-        self.rightD = pygame.Rect((270,320,1,30))
-        self.bottomD = pygame.Rect((240,350,30,1))
+        self.leftD = pygame.Rect((269,260,1,30))
+        self.topD = pygame.Rect((270,259,30,1))
+        self.rightD = pygame.Rect((300,260,1,30))
+        self.bottomD = pygame.Rect((270,290,30,1))
     
     def draw(self):
         pygame.draw.rect(screen,self.color,self.rect)
@@ -90,31 +92,155 @@ class Ghost:
         self.notTlist.clear()
         self.XPD = P.rect.x - self.rect.x
         self.YPD = P.rect.y - self.rect.y
-        if(self.topD.collidelist() == -1):
+        if(self.topD.collidelist(walls) == -1):
             self.notTlist.append("U")
-        if(self.rightD.collidelist() == -1):
+        if(self.rightD.collidelist(walls) == -1):
             self.notTlist.append("R")
-        if(self.bottomD.collidelist() == -1):
+        if(self.bottomD.collidelist(walls) == -1):
             self.notTlist.append("D")
-        if(self.leftD.collidelist() == -1):
+        if(self.leftD.collidelist(walls) == -1):
             self.notTlist.append("L")
-        self.notTlist.remove(self.rotation)
-
         
+        if(self.rotation == "R"):
+            self.rotationR = "L"
+        elif(self.rotation == "L"):
+            self.rotationR = "R"
+        elif(self.rotation == "U"):
+            self.rotationR = "D"
+        elif(self.rotation == "D"):
+            self.rotationR = "U"
+        
+        if(self.rotation == "R"):
+            if("L" in self.notTlist):
+                self.notTlist.remove("L")
+        if(self.rotation == "L"):
+            if("R" in self.notTlist):
+                self.notTlist.remove("R")
+        if(self.rotation == "U"):
+            if("D" in self.notTlist):
+                self.notTlist.remove("D")
+        if(self.rotation == "D"):
+            if("U" in self.notTlist):
+                self.notTlist.remove("U")
+        
+        print(self.notTlist)
+
+
+
+
         if(self.type == 4):
             if(len(self.notTlist) == 2):
-                if(abs(self.XPD) <= abs(self.YPD)):
+                if(abs(self.XPD) >= abs(self.YPD)):
                     #change direction to go to player
                     if(self.XPD > 0 and "R" in self.notTlist):
                         self.rotation = "R"
                     elif(self.XPD < 0 and "L" in self.notTlist):
                         self.rotation = "L"
-                    elif("R" not in self.notTlist):
-                        #self.notTlist.remove("R")
-                        self.rotation = self.notTlist[0]
-                    elif("L" not in self.notTlist):
-                        #self.notTlist.remove("L")
-                        self.rotation = self.notTlist[0]
+                    elif(self.XPD > 0 and "R" not in self.notTlist):
+                        if(self.YPD > 0 and "D" in self.notTlist):
+                            self.rotation = "D"
+                        else:
+                            self.rotation = "U"
+                    elif(self.XPD < 0 and "L" not in self.notTlist):
+                        if(self.YPD > 0 and "D" in self.notTlist):
+                            self.rotation = "D"
+                        else:
+                            self.rotation = "U"
+                elif(abs(self.XPD) <= abs(self.YPD)):
+                    #change direction to go to player
+                    if(self.YPD > 0 and "D" in self.notTlist):
+                        self.rotation = "D"
+                    elif(self.YPD < 0 and "U" in self.notTlist):
+                        self.rotation = "U"
+                    elif(self.YPD > 0 and "D" not in self.notTlist):
+                        if(self.XPD > 0 and "R" in self.notTlist):
+                            self.rotation = "R"
+                        else:
+                            self.rotation = "L"
+                    elif(self.YPD < 0 and "U" not in self.notTlist):
+                        if(self.XPD > 0 and "R" in self.notTlist):
+                            self.rotation = "R"
+                        else:
+                            self.rotation = "L"
+            elif(len(self.notTlist) == 3):
+                if(abs(self.XPD) >= abs(self.YPD)):
+                    if(self.XPD > 0 and "R" in self.notTlist):
+                        self.rotation = "R"
+                    elif(self.XPD < 0 and "L" in self.notTlist):
+                        self.rotation = "L"
+                    elif(self.XPD > 0 and "R" not in self.notTlist):
+                        if(self.YPD > 0):
+                            self.rotation = "D"
+                        else:
+                            self.rotation = "U"
+                    elif(self.XPD < 0 and "L" not in self.notTlist):
+                        if(self.YPD > 0):
+                            self.rotation = "D"
+                        else:
+                            self.rotation = "U"
+                elif(abs(self.XPD) <= abs(self.YPD)):
+                    #change direction to go to player
+                    if(self.YPD > 0 and "D" in self.notTlist):
+                        self.rotation = "D"
+                    elif(self.YPD < 0 and "U" in self.notTlist):
+                        self.rotation = "U"
+                    elif(self.YPD > 0 and "D" not in self.notTlist):
+                        if(self.XPD > 0):
+                            self.rotation = "R"
+                        else:
+                            self.rotation = "L"
+                    elif(self.YPD < 0 and "U" not in self.notTlist):
+                        if(self.XPD > 0):
+                            self.rotation = "R"
+                        else:
+                            self.rotation = "L"
+        
+
+        #This goes after all of the ghost types
+        if(len(self.notTlist) == 1):
+            self.rotation = self.notTlist[0]
+    
+    def Move(self,moveTimeG):
+        if(time.time() >= moveTimeG + .0035):
+            if(self.rotation == "R"):
+                self.rect.move_ip(1,0)
+                self.leftD.move_ip(1,0)
+                self.topD.move_ip(1,0)
+                self.rightD.move_ip(1,0)
+                self.bottomD.move_ip(1,0)
+            if(self.rotation == "U"):
+                self.rect.move_ip(0,-1)
+                self.leftD.move_ip(0,-1)
+                self.topD.move_ip(0,-1)
+                self.rightD.move_ip(0,-1)
+                self.bottomD.move_ip(0,-1)
+            if(self.rotation == "L"):
+                self.rect.move_ip(-1,0)
+                self.leftD.move_ip(-1,0)
+                self.topD.move_ip(-1,0)
+                self.rightD.move_ip(-1,0)
+                self.bottomD.move_ip(-1,0)
+            if(self.rotation == "D"):
+                self.rect.move_ip(0,1)
+                self.leftD.move_ip(0,1)
+                self.topD.move_ip(0,1)
+                self.rightD.move_ip(0,1)
+                self.bottomD.move_ip(0,1)
+            global moveTimeGT
+            moveTimeGT = time.time()
+        if(self.rect.x >= 570):
+            self.rect.move_ip(-599,0)
+            self.leftD.move_ip(-599,0)
+            self.topD.move_ip(-599,0)
+            self.rightD.move_ip(-599,0)
+            self.bottomD.move_ip(-599,0)
+        elif(self.rect.x <= -30):
+            self.rect.move_ip(599,0)
+            self.leftD.move_ip(599,0)
+            self.topD.move_ip(599,0)
+            self.rightD.move_ip(599,0)
+            self.bottomD.move_ip(599,0)
+
 
 
 
@@ -165,8 +291,8 @@ class Player:
                 self.topD.move_ip(0,1)
                 self.rightD.move_ip(0,1)
                 self.bottomD.move_ip(0,1)
-            global moveTime
-            moveTime = time.time()
+            global moveTimePT
+            moveTimePT = time.time()
         if(self.rect.x >= 570):
             self.rect.move_ip(-599,0)
             self.leftD.move_ip(-599,0)
@@ -183,6 +309,7 @@ class Player:
 
 #Initializes the player and starts the main game loop.
 P = Player()
+G = Ghost(4)
 running = True
 while(running):
     #Draws the screen, player, walls, pellets, and score
@@ -190,6 +317,7 @@ while(running):
     MakeWalls()
     MakePellets()
     P.draw()
+    G.draw()
     scoreDisplay = pygame.font.SysFont('Comic Sans MS', 30)
     text_surface = scoreDisplay.render(str(score), False, (255, 255, 255))
     scorelen = 0
@@ -211,7 +339,9 @@ while(running):
         P.rotation = "D"
     
     #Moves the player based on this direction, collects the pellets
-    P.Move(moveTime)
+    P.Move(moveTimePT)
+    G.MoveDecide()
+    G.Move(moveTimeGT)
     if(P.rect.collidelist(pellets) >=0):
         score += 10
         pellets.pop(P.rect.collidelist(pellets))
