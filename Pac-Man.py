@@ -18,7 +18,10 @@ score = -30
 scorelen = 350
 textPos = 0
 moveTimePT = time.time()
-moveTimeGT = time.time()
+moveTimeG1T = time.time()
+moveTimeG2T = time.time()
+moveTimeG3T = time.time()
+moveTimeG4T = time.time()
 place = True
 
 
@@ -26,7 +29,7 @@ place = True
 #Makes the wall positions and sizes
 walls = [pygame.Rect(0,50,570,30),pygame.Rect(0,650,570,30),pygame.Rect(0,50,30,210),pygame.Rect(540,50,30,210),pygame.Rect(0,230,120,30),pygame.Rect(450,230,120,30),pygame.Rect(0,290,120,30),pygame.Rect(450,290,120,30),pygame.Rect(450,260,30,30),pygame.Rect(90,260,30,30),pygame.Rect(450,350,120,30),pygame.Rect(0,350,120,30),pygame.Rect(90,350,30,90),pygame.Rect(450,350,30,90),pygame.Rect(0,410,120,30),pygame.Rect(450,410,120,30),pygame.Rect(0,410,30,280),pygame.Rect(540,410,30,280),pygame.Rect(60,110,60,30),pygame.Rect(150,110,90,30),pygame.Rect(270,80,30,60),pygame.Rect(330,110,90,30),pygame.Rect(450,110,60,30),pygame.Rect(60,170,60,30),pygame.Rect(150,170,30,150),pygame.Rect(210,170,150,30),pygame.Rect(450,110,60,30),pygame.Rect(270,170,30,90),pygame.Rect(390,170,30,150),pygame.Rect(450,170,60,30),pygame.Rect(150,230,90,30),pygame.Rect(330,230,90,30),pygame.Rect(210,290,30,90),pygame.Rect(210,290,150,30),pygame.Rect(330,290,30,90),pygame.Rect(150,350,30,90),pygame.Rect(210,350,150,30),pygame.Rect(390,350,30,90),pygame.Rect(210,410,150,30),pygame.Rect(270,410,30,90),pygame.Rect(60,470,60,30),pygame.Rect(90,470,30,90),pygame.Rect(150,470,90,30),pygame.Rect(330,470,90,30),pygame.Rect(450,470,30,90),pygame.Rect(450,470,60,30),pygame.Rect(30,530,30,30),pygame.Rect(150,530,30,90),pygame.Rect(210,530,150,30),pygame.Rect(270,530,30,90),pygame.Rect(390,530,30,90),pygame.Rect(510,530,30,30),pygame.Rect(60,590,180,30),pygame.Rect(330,590,180,30)]
 #                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      |End of outer areas / Start at top left this \ will indicate a new line                                                              \                                                                                                                                                                                               \                                                     \                                                                                \                                                                                 \                                                      \                                                                                                                                                               \                                                                                                                                                                 \
-#Specifies the out of bounds areas so the pellets don't spawn there
+#Specifies the out of bounds areas so the pellets don't spawn there and so the ghosts don't leave spawn
 outabounds = [pygame.Rect(0,260,90,30),pygame.Rect(480,260,90,30),pygame.Rect(0,380,90,30),pygame.Rect(480,380,90,30),pygame.Rect(240,320,90,30)]
 
 #Creates the pellets
@@ -65,11 +68,12 @@ def MakePellets():
 class Ghost:
     def __init__(self,type):
         self.type = type
-        self.rect = pygame.Rect((270,260,30,30))
+        self.rect = pygame.Rect((270,320,30,30))
         self.rotation = "R"
         self.rotationR = "L"
         self.XPD = 0
         self.YPD = 0
+        self.relTimer = 0
         self.notTlist = []
         if(self.type == 1):
             self.color = (13, 194, 214)
@@ -80,10 +84,10 @@ class Ghost:
         elif(self.type == 4):
             self.color = (219, 26, 187)
         #Track detections
-        self.leftD = pygame.Rect((269,260,1,30))
-        self.topD = pygame.Rect((270,259,30,1))
-        self.rightD = pygame.Rect((300,260,1,30))
-        self.bottomD = pygame.Rect((270,290,30,1))
+        self.leftD = pygame.Rect((269,320,1,30))
+        self.topD = pygame.Rect((270,319,30,1))
+        self.rightD = pygame.Rect((300,320,1,30))
+        self.bottomD = pygame.Rect((270,350,30,1))
     
     def draw(self):
         pygame.draw.rect(screen,self.color,self.rect)
@@ -123,7 +127,7 @@ class Ghost:
             if("U" in self.notTlist):
                 self.notTlist.remove("U")
         
-        print(self.notTlist)
+        
 
 
 
@@ -194,6 +198,152 @@ class Ghost:
                             self.rotation = "R"
                         else:
                             self.rotation = "L"
+        elif(self.type == 1):
+            if(len(self.notTlist) >= 2):
+                self.rotation = random.choice(self.notTlist)
+        elif(self.type == 2):
+            decision = random.randrange(1,101)
+            if(decision >= 33):
+                if(len(self.notTlist) >= 2):
+                    self.rotation = random.choice(self.notTlist)
+            else:
+                if(len(self.notTlist) == 2):
+                    if(abs(self.XPD) >= abs(self.YPD)):
+                        #change direction to go to player
+                        if(self.XPD > 0 and "R" in self.notTlist):
+                            self.rotation = "R"
+                        elif(self.XPD < 0 and "L" in self.notTlist):
+                            self.rotation = "L"
+                        elif(self.XPD > 0 and "R" not in self.notTlist):
+                            if(self.YPD > 0 and "D" in self.notTlist):
+                                self.rotation = "D"
+                            else:
+                                self.rotation = "U"
+                        elif(self.XPD < 0 and "L" not in self.notTlist):
+                            if(self.YPD > 0 and "D" in self.notTlist):
+                                self.rotation = "D"
+                            else:
+                                self.rotation = "U"
+                    elif(abs(self.XPD) <= abs(self.YPD)):
+                        #change direction to go to player
+                        if(self.YPD > 0 and "D" in self.notTlist):
+                            self.rotation = "D"
+                        elif(self.YPD < 0 and "U" in self.notTlist):
+                            self.rotation = "U"
+                        elif(self.YPD > 0 and "D" not in self.notTlist):
+                            if(self.XPD > 0 and "R" in self.notTlist):
+                                self.rotation = "R"
+                            else:
+                                self.rotation = "L"
+                        elif(self.YPD < 0 and "U" not in self.notTlist):
+                            if(self.XPD > 0 and "R" in self.notTlist):
+                                self.rotation = "R"
+                            else:
+                                self.rotation = "L"
+                elif(len(self.notTlist) == 3):
+                    if(abs(self.XPD) >= abs(self.YPD)):
+                        if(self.XPD > 0 and "R" in self.notTlist):
+                            self.rotation = "R"
+                        elif(self.XPD < 0 and "L" in self.notTlist):
+                            self.rotation = "L"
+                        elif(self.XPD > 0 and "R" not in self.notTlist):
+                            if(self.YPD > 0):
+                                self.rotation = "D"
+                            else:
+                                self.rotation = "U"
+                        elif(self.XPD < 0 and "L" not in self.notTlist):
+                            if(self.YPD > 0):
+                                self.rotation = "D"
+                            else:
+                                self.rotation = "U"
+                    elif(abs(self.XPD) <= abs(self.YPD)):
+                        #change direction to go to player
+                        if(self.YPD > 0 and "D" in self.notTlist):
+                            self.rotation = "D"
+                        elif(self.YPD < 0 and "U" in self.notTlist):
+                            self.rotation = "U"
+                        elif(self.YPD > 0 and "D" not in self.notTlist):
+                            if(self.XPD > 0):
+                                self.rotation = "R"
+                            else:
+                                self.rotation = "L"
+                        elif(self.YPD < 0 and "U" not in self.notTlist):
+                            if(self.XPD > 0):
+                                self.rotation = "R"
+                            else:
+                                self.rotation = "L"
+        elif(self.type == 3):
+            decision = random.randrange(1,101)
+            if(decision >= 66):
+                if(len(self.notTlist) >= 2):
+                    self.rotation = random.choice(self.notTlist)
+            else:
+                if(len(self.notTlist) == 2):
+                    if(abs(self.XPD) >= abs(self.YPD)):
+                        #change direction to go to player
+                        if(self.XPD > 0 and "R" in self.notTlist):
+                            self.rotation = "R"
+                        elif(self.XPD < 0 and "L" in self.notTlist):
+                            self.rotation = "L"
+                        elif(self.XPD > 0 and "R" not in self.notTlist):
+                            if(self.YPD > 0 and "D" in self.notTlist):
+                                self.rotation = "D"
+                            else:
+                                self.rotation = "U"
+                        elif(self.XPD < 0 and "L" not in self.notTlist):
+                            if(self.YPD > 0 and "D" in self.notTlist):
+                                self.rotation = "D"
+                            else:
+                                self.rotation = "U"
+                    elif(abs(self.XPD) <= abs(self.YPD)):
+                        #change direction to go to player
+                        if(self.YPD > 0 and "D" in self.notTlist):
+                            self.rotation = "D"
+                        elif(self.YPD < 0 and "U" in self.notTlist):
+                            self.rotation = "U"
+                        elif(self.YPD > 0 and "D" not in self.notTlist):
+                            if(self.XPD > 0 and "R" in self.notTlist):
+                                self.rotation = "R"
+                            else:
+                                self.rotation = "L"
+                        elif(self.YPD < 0 and "U" not in self.notTlist):
+                            if(self.XPD > 0 and "R" in self.notTlist):
+                                self.rotation = "R"
+                            else:
+                                self.rotation = "L"
+                elif(len(self.notTlist) == 3):
+                    if(abs(self.XPD) >= abs(self.YPD)):
+                        if(self.XPD > 0 and "R" in self.notTlist):
+                            self.rotation = "R"
+                        elif(self.XPD < 0 and "L" in self.notTlist):
+                            self.rotation = "L"
+                        elif(self.XPD > 0 and "R" not in self.notTlist):
+                            if(self.YPD > 0):
+                                self.rotation = "D"
+                            else:
+                                self.rotation = "U"
+                        elif(self.XPD < 0 and "L" not in self.notTlist):
+                            if(self.YPD > 0):
+                                self.rotation = "D"
+                            else:
+                                self.rotation = "U"
+                    elif(abs(self.XPD) <= abs(self.YPD)):
+                        #change direction to go to player
+                        if(self.YPD > 0 and "D" in self.notTlist):
+                            self.rotation = "D"
+                        elif(self.YPD < 0 and "U" in self.notTlist):
+                            self.rotation = "U"
+                        elif(self.YPD > 0 and "D" not in self.notTlist):
+                            if(self.XPD > 0):
+                                self.rotation = "R"
+                            else:
+                                self.rotation = "L"
+                        elif(self.YPD < 0 and "U" not in self.notTlist):
+                            if(self.XPD > 0):
+                                self.rotation = "R"
+                            else:
+                                self.rotation = "L"
+
         
 
         #This goes after all of the ghost types
@@ -201,7 +351,7 @@ class Ghost:
             self.rotation = self.notTlist[0]
     
     def Move(self,moveTimeG):
-        if(time.time() >= moveTimeG + .0035):
+        if(time.time() >= moveTimeG + .004):
             if(self.rotation == "R"):
                 self.rect.move_ip(1,0)
                 self.leftD.move_ip(1,0)
@@ -226,8 +376,18 @@ class Ghost:
                 self.topD.move_ip(0,1)
                 self.rightD.move_ip(0,1)
                 self.bottomD.move_ip(0,1)
-            global moveTimeGT
-            moveTimeGT = time.time()
+            global moveTimeG1T
+            global moveTimeG2T
+            global moveTimeG3T
+            global moveTimeG4T
+            if(self.type == 1):
+                moveTimeG1T = time.time()
+            elif(self.type == 2):
+                moveTimeG2T = time.time()
+            elif(self.type == 3):
+                moveTimeG3T = time.time()
+            elif(self.type == 4):
+                moveTimeG4T = time.time()
         if(self.rect.x >= 570):
             self.rect.move_ip(-599,0)
             self.leftD.move_ip(-599,0)
@@ -240,6 +400,40 @@ class Ghost:
             self.topD.move_ip(599,0)
             self.rightD.move_ip(599,0)
             self.bottomD.move_ip(599,0)
+    
+
+    def GhostrelT(self):
+        if(self.rect.collidelist(outabounds) >= 0):
+            if(self.relTimer == 0):
+                self.relTimer = time.time()
+            if(self.type == 1 and time.time() >= self.relTimer + 3):
+                self.rect.move_ip(0,-60)
+                self.leftD.move_ip(0,-60)
+                self.topD.move_ip(0,-60)
+                self.rightD.move_ip(0,-60)
+                self.bottomD.move_ip(0,-60)
+                self.relTimer = 0
+            if(self.type == 2 and time.time() >= self.relTimer + 6):
+                self.rect.move_ip(0,-60)
+                self.leftD.move_ip(0,-60)
+                self.topD.move_ip(0,-60)
+                self.rightD.move_ip(0,-60)
+                self.bottomD.move_ip(0,-60)
+                self.relTimer = 0
+            if(self.type == 3 and time.time() >= self.relTimer + 9):
+                self.rect.move_ip(0,-60)
+                self.leftD.move_ip(0,-60)
+                self.topD.move_ip(0,-60)
+                self.rightD.move_ip(0,-60)
+                self.bottomD.move_ip(0,-60)
+                self.relTimer = 0
+            if(self.type == 4 and time.time() >= self.relTimer + 12):
+                self.rect.move_ip(0,-60)
+                self.leftD.move_ip(0,-60)
+                self.topD.move_ip(0,-60)
+                self.rightD.move_ip(0,-60)
+                self.bottomD.move_ip(0,-60)
+                self.relTimer = 0
 
 
 
@@ -307,9 +501,18 @@ class Player:
             self.bottomD.move_ip(599,0)
 
 
+
+
+
+
+
+
 #Initializes the player and starts the main game loop.
 P = Player()
-G = Ghost(4)
+G4 = Ghost(4)
+G3 = Ghost(3)
+G2 = Ghost(2)
+G1 = Ghost(1)
 running = True
 while(running):
     #Draws the screen, player, walls, pellets, and score
@@ -317,7 +520,10 @@ while(running):
     MakeWalls()
     MakePellets()
     P.draw()
-    G.draw()
+    G4.draw()
+    G3.draw()
+    G2.draw()
+    G1.draw()
     scoreDisplay = pygame.font.SysFont('Comic Sans MS', 30)
     text_surface = scoreDisplay.render(str(score), False, (255, 255, 255))
     scorelen = 0
@@ -340,8 +546,22 @@ while(running):
     
     #Moves the player based on this direction, collects the pellets
     P.Move(moveTimePT)
-    G.MoveDecide()
-    G.Move(moveTimeGT)
+    if(G4.rect.collidelist(outabounds) == -1):
+        G4.MoveDecide()
+        G4.Move(moveTimeG4T)
+    if(G3.rect.collidelist(outabounds) == -1):
+        G3.MoveDecide()
+        G3.Move(moveTimeG3T)
+    if(G2.rect.collidelist(outabounds) == -1):
+        G2.MoveDecide()
+        G2.Move(moveTimeG2T)
+    if(G4.rect.collidelist(outabounds) == -1):
+        G1.MoveDecide()
+        G1.Move(moveTimeG1T)
+    G4.GhostrelT()
+    G3.GhostrelT()
+    G2.GhostrelT()
+    G1.GhostrelT()
     if(P.rect.collidelist(pellets) >=0):
         score += 10
         pellets.pop(P.rect.collidelist(pellets))
