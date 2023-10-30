@@ -17,6 +17,7 @@ screen = pygame.display.set_mode((570,680))
 score = -30
 scorelen = 350
 textPos = 0
+lives = 3
 moveTimePT = time.time()
 moveTimeG1T = time.time()
 moveTimeG2T = time.time()
@@ -52,6 +53,8 @@ for y in range(95,640,15):
         if(place == True):
             pellets.append(pygame.Rect(x,y,4,4))
 
+PowerPellets = [pygame.Rect(40,212,10,10),pygame.Rect(520,212,10,10),pygame.Rect(40,512,10,10),pygame.Rect(520,512,10,10)]
+
 
 #Makes the wall images
 def MakeWalls():
@@ -62,6 +65,8 @@ def MakeWalls():
 def MakePellets():
     for i in range(len(pellets)):
         pygame.draw.rect(screen,(235, 229, 52),pellets[i])
+    for i in range(len(PowerPellets)):
+        pygame.draw.rect(screen,(77, 255, 28),PowerPellets[i])
 
 
 
@@ -75,6 +80,7 @@ class Ghost:
         self.YPD = 0
         self.relTimer = 0
         self.notTlist = []
+        self.powerActive = False
         if(self.type == 1):
             self.color = (13, 194, 214)
         elif(self.type == 2):
@@ -94,8 +100,12 @@ class Ghost:
     
     def MoveDecide(self):
         self.notTlist.clear()
-        self.XPD = P.rect.x - self.rect.x
-        self.YPD = P.rect.y - self.rect.y
+        if(self.powerActive == False):
+            self.XPD = P.rect.x - self.rect.x
+            self.YPD = P.rect.y - self.rect.y
+        elif(self.powerActive == True):
+            self.XPD = 270 - self.rect.x
+            self.YPD = 260 - self.rect.y
         if(self.topD.collidelist(walls) == -1):
             self.notTlist.append("U")
         if(self.rightD.collidelist(walls) == -1):
@@ -129,10 +139,83 @@ class Ghost:
         
         
 
+        if(self.powerActive == True and self.rect.x == 270 and self.rect.y == 260):
+            self.rect.move_ip(0,60)
+            self.leftD.move_ip(0,60)
+            self.rightD.move_ip(0,60)
+            self.topD.move_ip(0,60)
+            self.bottomD.move_ip(0,60)
+            self.powerActive = False
+        
 
 
-
-        if(self.type == 4):
+        if(self.powerActive == True):
+            if(len(self.notTlist) == 2):
+                if(abs(self.XPD) >= abs(self.YPD)):
+                    #change direction to go to player
+                    if(self.XPD > 0 and "R" in self.notTlist):
+                        self.rotation = "R"
+                    elif(self.XPD < 0 and "L" in self.notTlist):
+                        self.rotation = "L"
+                    elif(self.XPD > 0 and "R" not in self.notTlist):
+                        if(self.YPD > 0 and "D" in self.notTlist):
+                            self.rotation = "D"
+                        else:
+                            self.rotation = "U"
+                    elif(self.XPD < 0 and "L" not in self.notTlist):
+                        if(self.YPD > 0 and "D" in self.notTlist):
+                            self.rotation = "D"
+                        else:
+                            self.rotation = "U"
+                elif(abs(self.XPD) <= abs(self.YPD)):
+                    #change direction to go to player
+                    if(self.YPD > 0 and "D" in self.notTlist):
+                        self.rotation = "D"
+                    elif(self.YPD < 0 and "U" in self.notTlist):
+                        self.rotation = "U"
+                    elif(self.YPD > 0 and "D" not in self.notTlist):
+                        if(self.XPD > 0 and "R" in self.notTlist):
+                            self.rotation = "R"
+                        else:
+                            self.rotation = "L"
+                    elif(self.YPD < 0 and "U" not in self.notTlist):
+                        if(self.XPD > 0 and "R" in self.notTlist):
+                            self.rotation = "R"
+                        else:
+                            self.rotation = "L"
+            elif(len(self.notTlist) == 3):
+                if(abs(self.XPD) >= abs(self.YPD)):
+                    if(self.XPD > 0 and "R" in self.notTlist):
+                        self.rotation = "R"
+                    elif(self.XPD < 0 and "L" in self.notTlist):
+                        self.rotation = "L"
+                    elif(self.XPD > 0 and "R" not in self.notTlist):
+                        if(self.YPD > 0):
+                            self.rotation = "D"
+                        else:
+                            self.rotation = "U"
+                    elif(self.XPD < 0 and "L" not in self.notTlist):
+                        if(self.YPD > 0):
+                            self.rotation = "D"
+                        else:
+                            self.rotation = "U"
+                elif(abs(self.XPD) <= abs(self.YPD)):
+                    #change direction to go to player
+                    if(self.YPD > 0 and "D" in self.notTlist):
+                        self.rotation = "D"
+                    elif(self.YPD < 0 and "U" in self.notTlist):
+                        self.rotation = "U"
+                    elif(self.YPD > 0 and "D" not in self.notTlist):
+                        if(self.XPD > 0):
+                            self.rotation = "R"
+                        else:
+                            self.rotation = "L"
+                    elif(self.YPD < 0 and "U" not in self.notTlist):
+                        if(self.XPD > 0):
+                            self.rotation = "R"
+                        else:
+                            self.rotation = "L"
+        elif(self.type == 4):
             if(len(self.notTlist) == 2):
                 if(abs(self.XPD) >= abs(self.YPD)):
                     #change direction to go to player
@@ -501,7 +584,16 @@ class Player:
             self.bottomD.move_ip(599,0)
 
 
-
+def TakeDmg():
+    global lives
+    lives -= 1
+    del P
+    del G1
+    del G3
+    del G2
+    del G1
+    #Wait and put a 3,2,1 thing on screen
+    #Make ghosts and player
 
 
 
@@ -565,6 +657,13 @@ while(running):
     if(P.rect.collidelist(pellets) >=0):
         score += 10
         pellets.pop(P.rect.collidelist(pellets))
+    if(P.rect.collidelist(PowerPellets) >= 0):
+        score += 100
+        PowerPellets.pop(P.rect.collidelist(PowerPellets))
+        G4.powerActive = True
+        G3.powerActive = True
+        G2.powerActive = True
+        G1.powerActive = True
 
     #Quits the program if trying to quit
     for event in pygame.event.get():
