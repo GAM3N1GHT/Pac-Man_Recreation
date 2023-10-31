@@ -587,13 +587,41 @@ class Player:
 def TakeDmg():
     global lives
     lives -= 1
-    del P
-    del G1
-    del G3
-    del G2
-    del G1
-    #Wait and put a 3,2,1 thing on screen
-    #Make ghosts and player
+    P.rect.x = 270
+    P.rect.y = 500
+    P.leftD.x = 296
+    P.leftD.y = 500
+    P.rightD.x = 300
+    P.rightD.y = 500
+    P.topD.x = 270
+    P.topD.y = 499
+    P.bottomD.x = 270
+    P.bottomD.y = 530
+    G1.rect.x = 270
+    G1.rect.y = 320
+    G1.leftD.x = 269
+    G1.leftD.y = 320
+    G1.rightD.x = 300
+    G1.rightD.y = 320
+    
+    G1.topD = G1.topD.move(270,319)
+    G1.bottomD = G1.bottomD.move(270,350)
+    G2.rect = G2.rect.move(270,320)
+    G2.leftD = G2.leftD.move(269,320)
+    G2.rightD = G2.rightD.move(300,320)
+    G2.topD = G2.topD.move(270,319)
+    G2.bottomD = G2.bottomD.move(270,350)
+    G3.rect = G3.rect.move(270,320)
+    G3.leftD = G3.leftD.move(269,320)
+    G3.rightD = G3.rightD.move(300,320)
+    G3.topD = G3.topD.move(270,319)
+    G3.bottomD = G3.bottomD.move(270,350)
+    G4.rect = G4.rect.move(270,320)
+    G4.leftD = G4.leftD.move(269,320)
+    G4.rightD = G4.rightD.move(300,320)
+    G4.topD = G4.topD.move(270,319)
+    G4.bottomD = G4.bottomD.move(270,350)
+    
 
 
 
@@ -635,6 +663,8 @@ while(running):
         P.rotation = "U"
     if(key[pygame.K_s] and P.bottomD.collidelist(walls) == -1):
         P.rotation = "D"
+    if(key[pygame.K_e]):
+        TakeDmg()
     
     #Moves the player based on this direction, collects the pellets
     P.Move(moveTimePT)
@@ -664,6 +694,10 @@ while(running):
         G3.powerActive = True
         G2.powerActive = True
         G1.powerActive = True
+    
+    # if(P.rect.colliderect(G1.rect) or P.rect.colliderect(G2.rect) or P.rect.colliderect(G3.rect) or P.rect.colliderect(G4.rect)):
+    #     TakeDmg()
+    #     print("test")
 
     #Quits the program if trying to quit
     for event in pygame.event.get():
