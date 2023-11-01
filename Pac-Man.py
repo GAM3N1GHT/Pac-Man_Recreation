@@ -18,13 +18,14 @@ score = -30
 scorelen = 350
 textPos = 0
 lives = 3
+ghostSpeed = .004
 moveTimePT = time.time()
 moveTimeG1T = time.time()
 moveTimeG2T = time.time()
 moveTimeG3T = time.time()
 moveTimeG4T = time.time()
 place = True
-
+canMove = True
 
 
 #Makes the wall positions and sizes
@@ -116,15 +117,6 @@ class Ghost:
             self.notTlist.append("L")
         
         if(self.rotation == "R"):
-            self.rotationR = "L"
-        elif(self.rotation == "L"):
-            self.rotationR = "R"
-        elif(self.rotation == "U"):
-            self.rotationR = "D"
-        elif(self.rotation == "D"):
-            self.rotationR = "U"
-        
-        if(self.rotation == "R"):
             if("L" in self.notTlist):
                 self.notTlist.remove("L")
         if(self.rotation == "L"):
@@ -136,8 +128,6 @@ class Ghost:
         if(self.rotation == "D"):
             if("U" in self.notTlist):
                 self.notTlist.remove("U")
-        
-        
 
         if(self.powerActive == True and self.rect.x == 270 and self.rect.y == 260):
             self.rect.move_ip(0,60)
@@ -146,8 +136,6 @@ class Ghost:
             self.topD.move_ip(0,60)
             self.bottomD.move_ip(0,60)
             self.powerActive = False
-        
-
 
         if(self.powerActive == True):
             if(len(self.notTlist) == 2):
@@ -282,12 +270,12 @@ class Ghost:
                         else:
                             self.rotation = "L"
         elif(self.type == 1):
-            if(len(self.notTlist) >= 2):
+            if(len(self.notTlist) >= 1):
                 self.rotation = random.choice(self.notTlist)
         elif(self.type == 2):
             decision = random.randrange(1,101)
             if(decision >= 33):
-                if(len(self.notTlist) >= 2):
+                if(len(self.notTlist) >= 1):
                     self.rotation = random.choice(self.notTlist)
             else:
                 if(len(self.notTlist) == 2):
@@ -358,7 +346,7 @@ class Ghost:
         elif(self.type == 3):
             decision = random.randrange(1,101)
             if(decision >= 66):
-                if(len(self.notTlist) >= 2):
+                if(len(self.notTlist) >= 1):
                     self.rotation = random.choice(self.notTlist)
             else:
                 if(len(self.notTlist) == 2):
@@ -426,15 +414,14 @@ class Ghost:
                                 self.rotation = "R"
                             else:
                                 self.rotation = "L"
-
         
-
         #This goes after all of the ghost types
         if(len(self.notTlist) == 1):
             self.rotation = self.notTlist[0]
     
+
     def Move(self,moveTimeG):
-        if(time.time() >= moveTimeG + .004):
+        if(time.time() >= moveTimeG + ghostSpeed):
             if(self.rotation == "R"):
                 self.rect.move_ip(1,0)
                 self.leftD.move_ip(1,0)
@@ -489,38 +476,34 @@ class Ghost:
         if(self.rect.collidelist(outabounds) >= 0):
             if(self.relTimer == 0):
                 self.relTimer = time.time()
-            if(self.type == 1 and time.time() >= self.relTimer + 3):
+            if(self.type == 1 and time.time() >= self.relTimer + 2):
                 self.rect.move_ip(0,-60)
                 self.leftD.move_ip(0,-60)
                 self.topD.move_ip(0,-60)
                 self.rightD.move_ip(0,-60)
                 self.bottomD.move_ip(0,-60)
                 self.relTimer = 0
-            if(self.type == 2 and time.time() >= self.relTimer + 6):
+            if(self.type == 2 and time.time() >= self.relTimer + 4):
                 self.rect.move_ip(0,-60)
                 self.leftD.move_ip(0,-60)
                 self.topD.move_ip(0,-60)
                 self.rightD.move_ip(0,-60)
                 self.bottomD.move_ip(0,-60)
                 self.relTimer = 0
-            if(self.type == 3 and time.time() >= self.relTimer + 9):
+            if(self.type == 3 and time.time() >= self.relTimer + 6):
                 self.rect.move_ip(0,-60)
                 self.leftD.move_ip(0,-60)
                 self.topD.move_ip(0,-60)
                 self.rightD.move_ip(0,-60)
                 self.bottomD.move_ip(0,-60)
                 self.relTimer = 0
-            if(self.type == 4 and time.time() >= self.relTimer + 12):
+            if(self.type == 4 and time.time() >= self.relTimer + 8):
                 self.rect.move_ip(0,-60)
                 self.leftD.move_ip(0,-60)
                 self.topD.move_ip(0,-60)
                 self.rightD.move_ip(0,-60)
                 self.bottomD.move_ip(0,-60)
                 self.relTimer = 0
-
-
-
-
 
 
 
@@ -584,12 +567,15 @@ class Player:
             self.bottomD.move_ip(599,0)
 
 
-def TakeDmg():
+def Reset(lifeD):
+    global canMove
+    canMove = False
     global lives
-    lives -= 1
+    lives -= lifeD
+    P.rotation = "D"
     P.rect.x = 270
     P.rect.y = 500
-    P.leftD.x = 296
+    P.leftD.x = 269
     P.leftD.y = 500
     P.rightD.x = 300
     P.rightD.y = 500
@@ -603,28 +589,70 @@ def TakeDmg():
     G1.leftD.y = 320
     G1.rightD.x = 300
     G1.rightD.y = 320
-    
-    G1.topD = G1.topD.move(270,319)
-    G1.bottomD = G1.bottomD.move(270,350)
-    G2.rect = G2.rect.move(270,320)
-    G2.leftD = G2.leftD.move(269,320)
-    G2.rightD = G2.rightD.move(300,320)
-    G2.topD = G2.topD.move(270,319)
-    G2.bottomD = G2.bottomD.move(270,350)
-    G3.rect = G3.rect.move(270,320)
-    G3.leftD = G3.leftD.move(269,320)
-    G3.rightD = G3.rightD.move(300,320)
-    G3.topD = G3.topD.move(270,319)
-    G3.bottomD = G3.bottomD.move(270,350)
-    G4.rect = G4.rect.move(270,320)
-    G4.leftD = G4.leftD.move(269,320)
-    G4.rightD = G4.rightD.move(300,320)
-    G4.topD = G4.topD.move(270,319)
-    G4.bottomD = G4.bottomD.move(270,350)
-    
-
-
-
+    G1.topD.x = 270
+    G1.topD.y = 319
+    G1.bottomD.x = 270
+    G1.bottomD.y = 350
+    G2.rect.x = 270
+    G2.rect.y = 320
+    G2.leftD.x = 269
+    G2.leftD.y = 320
+    G2.rightD.x = 300
+    G2.rightD.y = 320
+    G2.topD.x = 270
+    G2.topD.y = 319
+    G2.bottomD.x = 270
+    G2.bottomD.y = 350
+    G3.rect.x = 270
+    G3.rect.y = 320
+    G3.leftD.x = 269
+    G3.leftD.y = 320
+    G3.rightD.x = 300
+    G3.rightD.y = 320
+    G3.topD.x = 270
+    G3.topD.y = 319
+    G3.bottomD.x = 270
+    G3.bottomD.y = 350
+    G4.rect.x = 270
+    G4.rect.y = 320
+    G4.leftD.x = 269
+    G4.leftD.y = 320
+    G4.rightD.x = 300
+    G4.rightD.y = 320
+    G4.topD.x = 270
+    G4.topD.y = 319
+    G4.bottomD.x = 270
+    G4.bottomD.y = 350
+    G1.relTimer = 0
+    G2.relTimer = 0
+    G3.relTimer = 0
+    G4.relTimer = 0
+    startTime = time.time()
+    startDisplay = pygame.font.SysFont('Comic Sans MS', 30)
+    while(time.time() <= startTime + 1):
+        MakeWalls()
+        Start_surface = startDisplay.render("3", False, (255, 255, 255))
+        screen.blit(Start_surface, (274,342))
+        pygame.display.update()
+    while(time.time() <= startTime + 2 and time.time() > startTime + 1):
+        MakeWalls()
+        Start_surface = startDisplay.render("2", False, (255, 255, 255))
+        screen.blit(Start_surface, (274,342))
+        pygame.display.update()
+    G1.relTimer = 0
+    G2.relTimer = 0
+    G3.relTimer = 0
+    G4.relTimer = 0
+    while(time.time() <= startTime + 3 and time.time() > startTime + 2):
+        MakeWalls()
+        Start_surface = startDisplay.render("1", False, (255, 255, 255))
+        screen.blit(Start_surface, (274,342))
+        pygame.display.update()
+    G1.relTimer = 0
+    G2.relTimer = 0
+    G3.relTimer = 0
+    G4.relTimer = 0
+    canMove = True
 
 
 #Initializes the player and starts the main game loop.
@@ -633,6 +661,25 @@ G4 = Ghost(4)
 G3 = Ghost(3)
 G2 = Ghost(2)
 G1 = Ghost(1)
+screen.fill(Scolor)
+MakeWalls()
+MakePellets()
+P.draw()
+G4.draw()
+G3.draw()
+G2.draw()
+G1.draw()
+scoreDisplay = pygame.font.SysFont('Comic Sans MS', 30)
+text_surface = scoreDisplay.render(str(score), False, (255, 255, 255))
+scorelen = 0
+for i in range(len(str(score))):
+    scorelen += 19
+textPos = 570-scorelen
+screen.blit(text_surface, (textPos,0))
+pygame.display.flip()
+pygame.display.update()
+
+
 running = True
 while(running):
     #Draws the screen, player, walls, pellets, and score
@@ -664,26 +711,27 @@ while(running):
     if(key[pygame.K_s] and P.bottomD.collidelist(walls) == -1):
         P.rotation = "D"
     if(key[pygame.K_e]):
-        TakeDmg()
+        Reset(1)
     
     #Moves the player based on this direction, collects the pellets
-    P.Move(moveTimePT)
-    if(G4.rect.collidelist(outabounds) == -1):
-        G4.MoveDecide()
-        G4.Move(moveTimeG4T)
-    if(G3.rect.collidelist(outabounds) == -1):
-        G3.MoveDecide()
-        G3.Move(moveTimeG3T)
-    if(G2.rect.collidelist(outabounds) == -1):
-        G2.MoveDecide()
-        G2.Move(moveTimeG2T)
-    if(G4.rect.collidelist(outabounds) == -1):
-        G1.MoveDecide()
-        G1.Move(moveTimeG1T)
-    G4.GhostrelT()
-    G3.GhostrelT()
-    G2.GhostrelT()
-    G1.GhostrelT()
+    if(canMove):
+        P.Move(moveTimePT)
+        if(G4.rect.collidelist(outabounds) == -1):
+            G4.MoveDecide()
+            G4.Move(moveTimeG4T)
+        if(G3.rect.collidelist(outabounds) == -1):
+            G3.MoveDecide()
+            G3.Move(moveTimeG3T)
+        if(G2.rect.collidelist(outabounds) == -1):
+            G2.MoveDecide()
+            G2.Move(moveTimeG2T)
+        if(G1.rect.collidelist(outabounds) == -1):
+            G1.MoveDecide()
+            G1.Move(moveTimeG1T)
+        G4.GhostrelT()
+        G3.GhostrelT()
+        G2.GhostrelT()
+        G1.GhostrelT()
     if(P.rect.collidelist(pellets) >=0):
         score += 10
         pellets.pop(P.rect.collidelist(pellets))
@@ -695,9 +743,31 @@ while(running):
         G2.powerActive = True
         G1.powerActive = True
     
-    # if(P.rect.colliderect(G1.rect) or P.rect.colliderect(G2.rect) or P.rect.colliderect(G3.rect) or P.rect.colliderect(G4.rect)):
-    #     TakeDmg()
-    #     print("test")
+    if(P.rect.colliderect(G1.rect) or P.rect.colliderect(G2.rect) or P.rect.colliderect(G3.rect) or P.rect.colliderect(G4.rect)):
+        Reset(1)
+    
+    if(len(pellets) == 0):
+        Reset(0)
+        score -= 30
+        for y in range(95,640,15):
+            for x in range(43,528,15):
+                place = True
+                for a in range(len(walls)):
+                    if(walls[a].collidepoint(x,y) == True):
+                        place = False
+                    if(walls[a].collidepoint(x+3,y-3) == True):
+                        place = False
+                    if(walls[a].collidepoint(x+3,y) == True):
+                        place = False
+                    if(walls[a].collidepoint(x,y-3) == True):
+                        place = False
+                for b in range(len(outabounds)):
+                    if(outabounds[b].collidepoint(x,y) == True):
+                        place = False
+                if(place == True):
+                    pellets.append(pygame.Rect(x,y,4,4))
+        PowerPellets = [pygame.Rect(40,212,10,10),pygame.Rect(520,212,10,10),pygame.Rect(40,512,10,10),pygame.Rect(520,512,10,10)]
+        ghostSpeed -= .0002
 
     #Quits the program if trying to quit
     for event in pygame.event.get():
