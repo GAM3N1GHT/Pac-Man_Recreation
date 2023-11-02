@@ -56,6 +56,7 @@ for y in range(95,640,15):
 
 PowerPellets = [pygame.Rect(40,212,10,10),pygame.Rect(520,212,10,10),pygame.Rect(40,512,10,10),pygame.Rect(520,512,10,10)]
 
+livesDis = [pygame.Rect(10,10,30,30),pygame.Rect(50,10,30,30),pygame.Rect(90,10,30,30)]
 
 #Makes the wall images
 def MakeWalls():
@@ -69,7 +70,9 @@ def MakePellets():
     for i in range(len(PowerPellets)):
         pygame.draw.rect(screen,(77, 255, 28),PowerPellets[i])
 
-
+def MakeLives():
+    for i in range(len(livesDis)):
+        pygame.draw.rect(screen,(24, 150, 5),livesDis[i])
 
 class Ghost:
     def __init__(self,type):
@@ -572,6 +575,12 @@ def Reset(lifeD):
     canMove = False
     global lives
     lives -= lifeD
+    if(lives == 2):
+        livesDis.pop(2)
+    if(lives == 1):
+        livesDis.pop(1)
+    if(lives == 0):
+        livesDis.pop(0)
     P.rotation = "D"
     P.rect.x = 270
     P.rect.y = 500
@@ -655,6 +664,28 @@ def Reset(lifeD):
     canMove = True
 
 
+def End(scoreE):
+    EscoreDisplay = pygame.font.SysFont("Comic Sans MS", 30)
+    END = True
+    while END:
+        screen.fill(Scolor)
+        EscoreSurface = EscoreDisplay.render(str(scoreE), False, (255,255,255))
+        screen.blit(EscoreSurface, (10,200))
+
+        #Quits the program if trying to quit
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                END = False
+                running = False
+
+        pygame.display.flip()
+        pygame.display.update()
+
+
+
+
+
+
 #Initializes the player and starts the main game loop.
 P = Player()
 G4 = Ghost(4)
@@ -686,6 +717,7 @@ while(running):
     screen.fill(Scolor)
     MakeWalls()
     MakePellets()
+    MakeLives()
     P.draw()
     G4.draw()
     G3.draw()
@@ -768,6 +800,9 @@ while(running):
                     pellets.append(pygame.Rect(x,y,4,4))
         PowerPellets = [pygame.Rect(40,212,10,10),pygame.Rect(520,212,10,10),pygame.Rect(40,512,10,10),pygame.Rect(520,512,10,10)]
         ghostSpeed -= .0002
+    
+    if(lives == 0):
+        End(score)
 
     #Quits the program if trying to quit
     for event in pygame.event.get():
