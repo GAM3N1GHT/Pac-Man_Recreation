@@ -575,11 +575,11 @@ def Reset(lifeD):
     canMove = False
     global lives
     lives -= lifeD
-    if(lives == 2):
+    if(lives == 2 and 0 <= 2 < len(livesDis)):
         livesDis.pop(2)
-    if(lives == 1):
+    if(lives == 1 and 0 <= 1 < len(livesDis)):
         livesDis.pop(1)
-    if(lives == 0):
+    if(lives == 0 and 0 <= 0 < len(livesDis)):
         livesDis.pop(0)
     P.rotation = "D"
     P.rect.x = 270
@@ -666,12 +666,14 @@ def Reset(lifeD):
 
 def End(scoreE):
     EscoreDisplay = pygame.font.SysFont("Comic Sans MS", 30)
+    YayDis = pygame.font.SysFont("ComicSans", 30)
     END = True
     while END:
         screen.fill(Scolor)
         EscoreSurface = EscoreDisplay.render(str(scoreE), False, (255,255,255))
-        screen.blit(EscoreSurface, (10,200))
-
+        screen.blit(EscoreSurface, (280,200))
+        YaySurf = YayDis.render("Congradulations you learned that the ancient building was actually used as a large town's central bathroom.", False, (255,255,255))
+        screen.blit(YaySurf, (100,240))
         #Quits the program if trying to quit
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -680,6 +682,7 @@ def End(scoreE):
 
         pygame.display.flip()
         pygame.display.update()
+    pygame.quit()
 
 
 
@@ -743,7 +746,7 @@ while(running):
     if(key[pygame.K_s] and P.bottomD.collidelist(walls) == -1):
         P.rotation = "D"
     if(key[pygame.K_e]):
-        Reset(1)
+        End(score)
     
     #Moves the player based on this direction, collects the pellets
     if(canMove):
