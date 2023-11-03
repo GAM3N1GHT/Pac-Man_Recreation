@@ -18,7 +18,7 @@ score = -30
 scorelen = 350
 textPos = 0
 lives = 3
-ghostSpeed = .004
+guardSpeed = .004
 moveTimePT = time.time()
 moveTimeG1T = time.time()
 moveTimeG2T = time.time()
@@ -31,7 +31,7 @@ canMove = True
 #Makes the wall positions and sizes
 walls = [pygame.Rect(0,50,570,30),pygame.Rect(0,650,570,30),pygame.Rect(0,50,30,210),pygame.Rect(540,50,30,210),pygame.Rect(0,230,120,30),pygame.Rect(450,230,120,30),pygame.Rect(0,290,120,30),pygame.Rect(450,290,120,30),pygame.Rect(450,260,30,30),pygame.Rect(90,260,30,30),pygame.Rect(450,350,120,30),pygame.Rect(0,350,120,30),pygame.Rect(90,350,30,90),pygame.Rect(450,350,30,90),pygame.Rect(0,410,120,30),pygame.Rect(450,410,120,30),pygame.Rect(0,410,30,280),pygame.Rect(540,410,30,280),pygame.Rect(60,110,60,30),pygame.Rect(150,110,90,30),pygame.Rect(270,80,30,60),pygame.Rect(330,110,90,30),pygame.Rect(450,110,60,30),pygame.Rect(60,170,60,30),pygame.Rect(150,170,30,150),pygame.Rect(210,170,150,30),pygame.Rect(450,110,60,30),pygame.Rect(270,170,30,90),pygame.Rect(390,170,30,150),pygame.Rect(450,170,60,30),pygame.Rect(150,230,90,30),pygame.Rect(330,230,90,30),pygame.Rect(210,290,30,90),pygame.Rect(210,290,150,30),pygame.Rect(330,290,30,90),pygame.Rect(150,350,30,90),pygame.Rect(210,350,150,30),pygame.Rect(390,350,30,90),pygame.Rect(210,410,150,30),pygame.Rect(270,410,30,90),pygame.Rect(60,470,60,30),pygame.Rect(90,470,30,90),pygame.Rect(150,470,90,30),pygame.Rect(330,470,90,30),pygame.Rect(450,470,30,90),pygame.Rect(450,470,60,30),pygame.Rect(30,530,30,30),pygame.Rect(150,530,30,90),pygame.Rect(210,530,150,30),pygame.Rect(270,530,30,90),pygame.Rect(390,530,30,90),pygame.Rect(510,530,30,30),pygame.Rect(60,590,180,30),pygame.Rect(330,590,180,30)]
 #                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      |End of outer areas / Start at top left this \ will indicate a new line                                                              \                                                                                                                                                                                               \                                                     \                                                                                \                                                                                 \                                                      \                                                                                                                                                               \                                                                                                                                                                 \
-#Specifies the out of bounds areas so the pellets don't spawn there and so the ghosts don't leave spawn
+#Specifies the out of bounds areas so the pellets don't spawn there and so the guards don't leave spawn
 outabounds = [pygame.Rect(0,260,90,30),pygame.Rect(480,260,90,30),pygame.Rect(0,380,90,30),pygame.Rect(480,380,90,30),pygame.Rect(240,320,90,30)]
 
 #Creates the pellets
@@ -74,7 +74,7 @@ def MakeLives():
     for i in range(len(livesDis)):
         pygame.draw.rect(screen,(24, 150, 5),livesDis[i])
 
-class Ghost:
+class Guard:
     def __init__(self,type):
         self.type = type
         self.rect = pygame.Rect((270,320,30,30))
@@ -418,13 +418,13 @@ class Ghost:
                             else:
                                 self.rotation = "L"
         
-        #This goes after all of the ghost types
+        #This goes after all of the guard types
         if(len(self.notTlist) == 1):
             self.rotation = self.notTlist[0]
     
 
     def Move(self,moveTimeG):
-        if(time.time() >= moveTimeG + ghostSpeed):
+        if(time.time() >= moveTimeG + guardSpeed):
             if(self.rotation == "R"):
                 self.rect.move_ip(1,0)
                 self.leftD.move_ip(1,0)
@@ -475,7 +475,7 @@ class Ghost:
             self.bottomD.move_ip(599,0)
     
 
-    def GhostrelT(self):
+    def GuardrelT(self):
         if(self.rect.collidelist(outabounds) >= 0):
             if(self.relTimer == 0):
                 self.relTimer = time.time()
@@ -667,13 +667,22 @@ def Reset(lifeD):
 def End(scoreE):
     EscoreDisplay = pygame.font.SysFont("Comic Sans MS", 30)
     YayDis = pygame.font.SysFont("ComicSans", 30)
+    YayDis2 = pygame.font.SysFont("ComicSans", 30)
+    YayDis3 = pygame.font.SysFont("ComicSans", 30)
+    YayDis4 = pygame.font.SysFont("ComicSans", 30)
     END = True
     while END:
         screen.fill(Scolor)
         EscoreSurface = EscoreDisplay.render(str(scoreE), False, (255,255,255))
         screen.blit(EscoreSurface, (280,200))
-        YaySurf = YayDis.render("Congradulations you learned that the ancient building was actually used as a large town's central bathroom.", False, (255,255,255))
-        screen.blit(YaySurf, (100,240))
+        YaySurf = YayDis.render("Congradulations you learned that the ", False, (255,255,255))
+        screen.blit(YaySurf, (20,240))
+        YaySurf2 = YayDis2.render("ancient building was actually used as ", False, (255,255,255))
+        screen.blit(YaySurf2, (20,270))
+        YaySurf3 = YayDis3.render("a large town's central library where ", False, (255,255,255))
+        screen.blit(YaySurf3, (20,300))
+        YaySurf4 = YayDis4.render("philosophers would gather.", False, (255,255,255))
+        screen.blit(YaySurf4, (20,330))
         #Quits the program if trying to quit
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -691,10 +700,10 @@ def End(scoreE):
 
 #Initializes the player and starts the main game loop.
 P = Player()
-G4 = Ghost(4)
-G3 = Ghost(3)
-G2 = Ghost(2)
-G1 = Ghost(1)
+G4 = Guard(4)
+G3 = Guard(3)
+G2 = Guard(2)
+G1 = Guard(1)
 screen.fill(Scolor)
 MakeWalls()
 MakePellets()
@@ -745,8 +754,6 @@ while(running):
         P.rotation = "U"
     if(key[pygame.K_s] and P.bottomD.collidelist(walls) == -1):
         P.rotation = "D"
-    if(key[pygame.K_e]):
-        End(score)
     
     #Moves the player based on this direction, collects the pellets
     if(canMove):
@@ -763,10 +770,10 @@ while(running):
         if(G1.rect.collidelist(outabounds) == -1):
             G1.MoveDecide()
             G1.Move(moveTimeG1T)
-        G4.GhostrelT()
-        G3.GhostrelT()
-        G2.GhostrelT()
-        G1.GhostrelT()
+        G4.GuardrelT()
+        G3.GuardrelT()
+        G2.GuardrelT()
+        G1.GuardrelT()
     if(P.rect.collidelist(pellets) >=0):
         score += 10
         pellets.pop(P.rect.collidelist(pellets))
@@ -802,7 +809,7 @@ while(running):
                 if(place == True):
                     pellets.append(pygame.Rect(x,y,4,4))
         PowerPellets = [pygame.Rect(40,212,10,10),pygame.Rect(520,212,10,10),pygame.Rect(40,512,10,10),pygame.Rect(520,512,10,10)]
-        ghostSpeed -= .0002
+        guardSpeed -= .0002
     
     if(lives == 0):
         End(score)
